@@ -77,6 +77,16 @@ public class MCWriter extends ClassWriter {
     	resoureClasses.addAll(list);
     }
     
+    public static void registerDomains(List<String> list)
+    {
+    	resourceDomains.addAll(list);
+    }
+    
+    public static void registerDomains(Set<String> list)
+    {
+    	resourceDomains.addAll(list);
+    }
+    
 
     private LaunchClassLoader l = Launch.classLoader;
 

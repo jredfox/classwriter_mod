@@ -28,7 +28,7 @@ public class Transformer implements IClassTransformer{
     	{
     		System.out.println("LastIndex:" + Launch.classLoader.getTransformers().get(Launch.classLoader.getTransformers().size()-2));
     	}
-    	System.out.println("debug:" + transformedName + ",obName:" + name);
+//    	System.out.println("debug:" + transformedName + ",obName:" + name);
     	MCWriter.resourceCache.put(transformedName, new ClassReader(basicClass));
         return basicClass;
     }
