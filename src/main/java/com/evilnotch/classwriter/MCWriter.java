@@ -58,22 +58,6 @@ import net.minecraftforge.fml.common.asm.transformers.deobf.FMLRemappingAdapter;
  */
 public class MCWriter extends ClassWriter {
 	
-	/**
-	 * the blacklist of loaded classes
-	 */
-    public static Set<String> resourceDomains = new HashSet<String>();
-    
-    public static void registerDomains(List<String> list)
-    {
-    	resourceDomains.addAll(list);
-    }
-    
-    public static void registerDomains(Set<String> list)
-    {
-    	resourceDomains.addAll(list);
-    }
-    
-
     private LaunchClassLoader l = Launch.classLoader;
 
     public MCWriter(final int flags) 

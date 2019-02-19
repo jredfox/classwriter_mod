@@ -5,7 +5,7 @@ import java.util.Map;
 import net.minecraftforge.fml.relauncher.IFMLLoadingPlugin;
 
 @IFMLLoadingPlugin.Name("evilnotch-classwriter")
-@IFMLLoadingPlugin.SortingIndex(Integer.MAX_VALUE)
+@IFMLLoadingPlugin.SortingIndex(0)
 @IFMLLoadingPlugin.MCVersion("1.12.2")
 @IFMLLoadingPlugin.TransformerExclusions("com.evilnotch.classwriter.")
 public class Plugin implements IFMLLoadingPlugin
@@ -15,7 +15,7 @@ public class Plugin implements IFMLLoadingPlugin
 	@Override
 	public String[] getASMTransformerClass() 
 	{
-		return null;
+		return new String[]{"com.evilnotch.classwriter.plugin.Transformer"};
 	}
 
 	@Override
