@@ -13,9 +13,11 @@ import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.commons.RemappingClassAdapter;
+import org.objectweb.asm.tree.ClassNode;
 
-import com.evilnotch.lib.asm.FMLCorePlugin;
+import com.evilnotch.classwriter.plugin.Plugin;
 
+import io.netty.handler.codec.http2.StreamByteDistributor.Writer;
 import net.minecraft.launchwrapper.Launch;
 import net.minecraft.launchwrapper.LaunchClassLoader;
 import net.minecraftforge.fml.common.asm.transformers.deobf.FMLRemappingAdapter;
@@ -57,25 +59,9 @@ import net.minecraftforge.fml.common.asm.transformers.deobf.FMLRemappingAdapter;
 public class MCWriter extends ClassWriter {
 	
 	/**
-	 * WARNING: if you specify domains and don't use classes in that directory it will effect your memory usage
+	 * the blacklist of loaded classes
 	 */
     public static Set<String> resourceDomains = new HashSet<String>();
-    
-    /**
-     * this is domains/classes to store transformed classes
-     * in your classes IClassTransformer static {} (class initializer) add all your classes/domains you want to add
-     */
-    public static Set<String> resoureClasses = new HashSet<String>();
-    
-    public static void registerClasses(List<String> list)
-    {
-    	resoureClasses.addAll(list);
-    }
-    
-    public static void registerClasses(Set<String> list)
-    {
-    	resoureClasses.addAll(list);
-    }
     
     public static void registerDomains(List<String> list)
     {
@@ -236,9 +222,10 @@ public class MCWriter extends ClassWriter {
     }
 
     /**
-     * this is the non loaded cache file of byte[] of classes
+     * this is the non loaded cache file of byte[] of classes that is here temporary till toByteArray() gets called.
+     * Also the interfaces here may or may not be adjusted depdending upon if the class is loaded or not
      */
-    public static Map<String,ClassReader> offMemoryCache = new HashMap<String,ClassReader>(350); 
+    public static Map<String,ClassReader> offMemoryCache = new HashMap<String,ClassReader>(50); 
     
     /**
      * Returns a ClassReader from the input class. It also deobfuscates it and fetches it when possible from
@@ -246,13 +233,6 @@ public class MCWriter extends ClassWriter {
      */
     private ClassReader typeInfo(final String t) throws Exception 
     {
-    	String deob = ObfHelper.forceToDeobfClassName(t);
-    	ClassReader bb = getClassBytes(deob.replace('/', '.'));
-    	if(bb != null)
-    	{
-    		return bb;
-    	}
-    	
     	String type = ObfHelper.toObfClassName(t);
     	if(offMemoryCache.containsKey(type))
     	{
@@ -264,8 +244,9 @@ public class MCWriter extends ClassWriter {
         try 
         {
         	ClassReader reader = new ClassReader(is);
-            if(FMLCorePlugin.isObf)
+            if(Plugin.isObf)
             	reader = patchClass(reader);
+            
             offMemoryCache.put(type, reader);
             return reader;
         } 
@@ -284,44 +265,19 @@ public class MCWriter extends ClassWriter {
     	offMemoryCache.clear();
     	return super.toByteArray();
     }
-    
-    /**
-     * the map between deob class names and their finished transformed classes. 
-     * Gets populated by a transformer if it's on the List<String> resourceDomains that runs with the sorting index of Integer.MAX_VALUE
-     */
-    public static Map<String,ClassReader> resourceCache = new HashMap<String,ClassReader>(40);
-    private ClassReader getClassBytes(String deob) 
-    {	
-    	if(resourceCache.containsKey(deob))
-    	{
-    		return resourceCache.get(deob);
-    	}
-    	return null;
-	}
 
 	private static final boolean RECALC_FRAMES = Boolean.parseBoolean(System.getProperty("FORGE_FORCE_FRAME_RECALC", "false"));
     private static final int READER_FLAGS = RECALC_FRAMES ? ClassReader.SKIP_FRAMES : ClassReader.EXPAND_FRAMES;
    
     /**
-     * deob the class without loading more classes
+     * deob the class without loading more classes and also attatched any transformed interfaces
      */
     private ClassReader patchClass(ClassReader reader) 
 	{
 		ClassWriter classWriter = new ClassWriter(ClassWriter.COMPUTE_MAXS);//don't load compute frames it's not necessary for running forge's transformer and would causes recursion/class circulatory errors
         RemappingClassAdapter remapAdapter = new FMLRemappingAdapter(classWriter);
 		reader.accept(remapAdapter, READER_FLAGS);
+		
 		return new ClassReader(classWriter.toByteArray());
 	}
-	
-	/**
-     * is the class currently loaded
-     */
-    public static Class getClass(String name) throws Exception
-    {
-        java.lang.reflect.Method m = ClassLoader.class.getDeclaredMethod("findLoadedClass", new Class[] { String.class });
-        m.setAccessible(true);
-        ClassLoader cl = ClassLoader.getSystemClassLoader();
-        Class test = (Class) m.invoke(cl, name);
-        return test;
-    }
 }
