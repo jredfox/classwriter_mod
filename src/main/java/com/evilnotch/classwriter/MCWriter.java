@@ -266,6 +266,16 @@ public class MCWriter extends ClassWriter {
     }
     
     /**
+     * clear the offline memory cache when this is called to save memory
+     */
+    @Override
+    public byte[] toByteArray()
+    {
+    	offMemoryCache.clear();
+    	return super.toByteArray();
+    }
+    
+    /**
      * the map between deob class names and their finished transformed classes. 
      * Gets populated by a transformer if it's on the List<String> resourceDomains that runs with the sorting index of Integer.MAX_VALUE
      */
