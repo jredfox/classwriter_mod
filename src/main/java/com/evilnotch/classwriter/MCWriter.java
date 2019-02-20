@@ -254,7 +254,7 @@ public class MCWriter extends ClassWriter {
     private static final int READER_FLAGS = RECALC_FRAMES ? ClassReader.SKIP_FRAMES : ClassReader.EXPAND_FRAMES;
    
     /**
-     * deob the class without loading more classes and also attatched any transformed interfaces
+     * deob the class without loading more classes and also attached any transformed interfaces
      */
     private ClassReader patchClass(ClassReader reader) 
 	{

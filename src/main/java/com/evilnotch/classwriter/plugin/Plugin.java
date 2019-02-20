@@ -10,8 +10,8 @@ import net.minecraftforge.fml.relauncher.IFMLLoadingPlugin;
 @IFMLLoadingPlugin.TransformerExclusions("com.evilnotch.classwriter.")
 public class Plugin implements IFMLLoadingPlugin
 {
-	public static boolean isObf;
-	
+	public static Boolean isObf;
+
 	@Override
 	public String[] getASMTransformerClass() 
 	{
